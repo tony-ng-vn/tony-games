@@ -19,26 +19,30 @@ Open http://127.0.0.1:5173 in two browser windows (or two devices on the same ne
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/import?s=https://github.com/tony-ng-vn/tony-games)
 
-`vercel.json` already configures install/build/output for the Vite client.
+### Important: Root Directory
 
-### Dashboard (fastest)
+In the Vercel project go to **Settings → General → Root Directory**, set it to:
+
+```text
+client
+```
+
+Save, then **Deployments → … → Redeploy**.
+
+If Root Directory stays at the repo root, the root `vercel.json` builds `client/dist` instead. Either approach works; `client` as Root Directory is simplest.
+
+### Fresh import
 
 1. Open [vercel.com/new](https://vercel.com/new) and import `tony-ng-vn/tony-games`
-2. Use branch `main` (or this PR branch)
+2. Set **Root Directory** to `client`
 3. Deploy — no env vars needed
 
-### CLI (from this repo)
+### CLI
 
 ```bash
 npm i -g vercel
 vercel login
-vercel --prod
-```
-
-Or with a token from [Vercel → Settings → Tokens](https://vercel.com/account/tokens):
-
-```bash
-vercel --prod --token "$VERCEL_TOKEN" --yes
+cd client && vercel --prod
 ```
 
 ## How it works
