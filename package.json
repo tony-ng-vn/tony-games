@@ -2,7 +2,7 @@
   "name": "quick-number",
   "private": true,
   "version": "1.0.0",
-  "description": "Two-player reaction game: find the target number first",
+  "description": "Inhavens Play — browser games hub (Quick Number and more)",
   "scripts": {
     "dev": "npm run dev --prefix client",
     "build": "npm run build --prefix client",

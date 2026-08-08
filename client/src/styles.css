@@ -63,6 +63,142 @@ button:disabled {
   margin: 0 0 8px;
 }
 
+.back-link {
+  align-self: flex-start;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.back-link:hover {
+  color: var(--ink);
+}
+
+/* —— Hub / catalog —— */
+.hub {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 6vw, 64px) clamp(20px, 5vw, 48px) 40px;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(17, 17, 17, 0.06), transparent 60%),
+    var(--bg);
+}
+
+.hub-header {
+  max-width: 640px;
+  margin: 0 auto 48px;
+  text-align: center;
+}
+
+.hub-kicker {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hub-brand {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 14vw, 6.5rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
+.hub-lead {
+  margin: 0 auto;
+  max-width: 34ch;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.hub-games {
+  width: min(560px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.hub-game {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  transition: transform 140ms ease, background 140ms ease;
+}
+
+.hub-game:hover {
+  transform: translateY(-2px);
+  background: #fafafa;
+}
+
+.hub-game.is-soon {
+  opacity: 0.45;
+}
+
+.hub-game-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hub-game h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  letter-spacing: -0.02em;
+}
+
+.hub-game-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hub-game p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.hub-game-cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.hub-footer {
+  margin-top: 48px;
+  text-align: center;
+}
+
+.hub-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.hub-footer a:hover {
+  color: var(--ink);
+}
+
 /* —— Lobby —— */
 .lobby {
   flex: 1;
