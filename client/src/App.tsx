@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Lobby } from './components/Lobby';
 import { WaitingRoom } from './components/WaitingRoom';
 import { GameRoom } from './components/GameRoom';
-import { socket } from './socket';
+import { GameSession } from './game/session';
 import type { GameState } from './types';
 
 export default function App() {
@@ -10,59 +10,53 @@ export default function App() {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sessionRef = useRef<GameSession | null>(null);
 
   useEffect(() => {
-    function onState(next: GameState) {
-      setState(next);
-    }
-
-    socket.on('game:state', onState);
+    const session = new GameSession({
+      onState: setState,
+      onPlayerId: setPlayerId,
+      onError: (message) => setError(message),
+    });
+    sessionRef.current = session;
     return () => {
-      socket.off('game:state', onState);
+      session.dispose();
+      sessionRef.current = null;
     };
   }, []);
 
-  function createRoom(name: string) {
+  async function createRoom(name: string) {
     setBusy(true);
     setError(null);
-    socket.emit('room:create', { name }, (res) => {
+    try {
+      await sessionRef.current?.create(name);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create room');
+    } finally {
       setBusy(false);
-      if (!res?.ok || !res.state || !res.playerId) {
-        setError(res?.error || 'Could not create room');
-        return;
-      }
-      setPlayerId(res.playerId);
-      setState(res.state);
-    });
+    }
   }
 
-  function joinRoom(name: string, code: string) {
+  async function joinRoom(name: string, code: string) {
     setBusy(true);
     setError(null);
-    socket.emit('room:join', { name, code }, (res) => {
+    try {
+      await sessionRef.current?.join(name, code);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not join room');
+    } finally {
       setBusy(false);
-      if (!res?.ok || !res.state || !res.playerId) {
-        setError(res?.error || 'Could not join room');
-        return;
-      }
-      setPlayerId(res.playerId);
-      setState(res.state);
-    });
+    }
   }
 
   function claim(value: number) {
     if (!state || state.boardLocked || state.phase !== 'playing') return;
-    socket.emit('game:claim', { value });
+    sessionRef.current?.claim(value);
   }
 
   function playAgain() {
-    setBusy(true);
-    socket.emit('game:playAgain', {}, (res) => {
-      setBusy(false);
-      if (!res?.ok) {
-        setError(res?.error || 'Could not restart');
-      }
-    });
+    setError(null);
+    sessionRef.current?.playAgain();
   }
 
   const inLobby = !state || !playerId;
@@ -83,6 +77,7 @@ export default function App() {
           busy={busy}
         />
       )}
+      {!inLobby && error ? <p className="error global-error">{error}</p> : null}
     </div>
   );
 }

@@ -1,12 +1,10 @@
-import { BOARD_SIZE, generateBoard } from './board.js';
+import { BOARD_SIZE, generateBoard, type NumberPos } from './board';
+import type { GamePhase, GameState, Player, RoundFeedback } from '../types';
 
 const ROUND_LOCK_MS = 900;
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-/**
- * @param {number} length
- */
-export function createRoomCode(length = 4) {
+export function createRoomCode(length = 4): string {
   let code = '';
   for (let i = 0; i < length; i += 1) {
     code += ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)];
@@ -14,34 +12,27 @@ export function createRoomCode(length = 4) {
   return code;
 }
 
+export function peerIdForCode(code: string): string {
+  return `qn-${code.toUpperCase()}`;
+}
+
 export class Room {
-  /**
-   * @param {string} code
-   */
-  constructor(code) {
-    this.code = code;
-    /** @type {Map<string, { id: string, name: string, score: number, slot: number }>} */
-    this.players = new Map();
-    /** @type {'waiting' | 'playing' | 'round_feedback' | 'finished'} */
-    this.phase = 'waiting';
-    this.target = 1;
-    this.board = generateBoard();
-    /** @type {number[]} */
-    this.claimed = [];
-    /** @type {{ playerId: string, playerName: string, slot: number, target: number } | null} */
-    this.lastWinner = null;
-    /** @type {number | null} */
-    this.winnerSlot = null;
-    this.boardLocked = false;
-    /** @type {ReturnType<typeof setTimeout> | null} */
-    this.roundTimer = null;
+  code: string;
+  players = new Map<string, Player>();
+  phase: GamePhase = 'waiting';
+  target = 1;
+  board: NumberPos[] = generateBoard();
+  claimed: number[] = [];
+  lastWinner: RoundFeedback | null = null;
+  winnerSlot: number | null = null;
+  boardLocked = false;
+  private roundTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(code: string) {
+    this.code = code.toUpperCase();
   }
 
-  /**
-   * @param {string} id
-   * @param {string} name
-   */
-  addPlayer(id, name) {
+  addPlayer(id: string, name: string): { ok: true } | { ok: false; error: string } {
     if (this.players.size >= 2) {
       return { ok: false, error: 'Room is full' };
     }
@@ -61,12 +52,8 @@ export class Room {
     return { ok: true };
   }
 
-  /**
-   * @param {string} id
-   */
-  removePlayer(id) {
-    const existed = this.players.delete(id);
-    if (!existed) return;
+  removePlayer(id: string) {
+    if (!this.players.delete(id)) return;
 
     if (this.roundTimer) {
       clearTimeout(this.roundTimer);
@@ -74,7 +61,6 @@ export class Room {
     }
 
     if (this.phase === 'waiting') {
-      // Re-slot remaining player to 0
       const remaining = [...this.players.values()];
       this.players.clear();
       remaining.forEach((p, index) => {
@@ -83,7 +69,6 @@ export class Room {
       return;
     }
 
-    // Mid-game disconnect: end the game for the remaining player
     if (this.phase === 'playing' || this.phase === 'round_feedback') {
       const remaining = [...this.players.values()];
       if (remaining.length === 1) {
@@ -118,11 +103,7 @@ export class Room {
     }
   }
 
-  /**
-   * @param {string} playerId
-   * @param {number} value
-   */
-  claim(playerId, value) {
+  claim(playerId: string, value: number): { ok: true; finishedTarget: number } | { ok: false; error: string } {
     if (this.phase !== 'playing' || this.boardLocked) {
       return { ok: false, error: 'Board locked' };
     }
@@ -154,11 +135,7 @@ export class Room {
     return { ok: true, finishedTarget: value };
   }
 
-  /**
-   * Advance to next target or finish the game.
-   * @param {(state: ReturnType<Room['toState']>) => void} emit
-   */
-  scheduleNextRound(emit) {
+  scheduleNextRound(emit: (state: GameState) => void) {
     if (this.roundTimer) {
       clearTimeout(this.roundTimer);
     }
@@ -209,15 +186,17 @@ export class Room {
     return true;
   }
 
-  toState() {
+  destroy() {
+    if (this.roundTimer) {
+      clearTimeout(this.roundTimer);
+      this.roundTimer = null;
+    }
+  }
+
+  toState(): GameState {
     const players = [...this.players.values()]
       .sort((a, b) => a.slot - b.slot)
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        score: p.score,
-        slot: p.slot,
-      }));
+      .map((p) => ({ ...p }));
 
     return {
       roomCode: this.code,
@@ -225,7 +204,7 @@ export class Room {
       players,
       target: this.target,
       board: this.board,
-      claimed: this.claimed,
+      claimed: [...this.claimed],
       lastWinner: this.lastWinner,
       winnerSlot: this.winnerSlot,
       boardLocked: this.boardLocked,

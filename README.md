@@ -4,34 +4,39 @@ A minimal two-player browser reaction game.
 
 Find the target number on a scrambled board of 1–50 before your opponent. First correct click scores a point. After 50, highest score wins.
 
-## Play
+Multiplayer is peer-to-peer (PeerJS), so the game deploys as a static site on Vercel — no custom game server required.
+
+## Local development
 
 ```bash
 npm run install:all
 npm run dev
 ```
 
-- Client: http://127.0.0.1:5173  
-- Server: port 3001 (Socket.io)
+Open http://127.0.0.1:5173 in two browser windows (or two devices on the same network with a tunnel). Create a room in one, join with the code in the other.
 
-1. Open two browser windows.  
-2. One player creates a room and shares the code.  
-3. The other joins with the code.  
-4. The game starts automatically when both are connected.
+## Deploy to Vercel
 
-## Production
+### Option A — Vercel dashboard
+
+1. Import `tony-ng-vn/tony-games` in [Vercel](https://vercel.com/new)
+2. Framework preset: Vite (auto from `vercel.json`)
+3. Deploy
+
+### Option B — CLI
 
 ```bash
-npm run install:all
-npm run build
-NODE_ENV=production npm start
+npm i -g vercel
+vercel login
+vercel --prod
 ```
 
-Serves the built client from the Node server on port 3001.
+`vercel.json` already sets install/build/output for the `client` app.
 
 ## How it works
 
-- Shared Socket.io room for exactly 2 players  
-- Server owns board positions, target progression, scoring, and locks  
-- Incorrect clicks do nothing; correct clicks award +1 and briefly lock the board  
+- Player 1 hosts the room (authoritative game state)
+- Player 2 joins via room code over a PeerJS data connection
+- Board positions, scoring, locks, and target progression stay in sync
+- Incorrect clicks do nothing; correct clicks award +1 and briefly lock the board
 - Target advances 1 → 50; then win / lose / draw with Play Again

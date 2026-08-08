@@ -171,6 +171,20 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.global-error {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border: 2px solid #b00000;
+  border-radius: 999px;
+  background: #fff;
+  z-index: 30;
+  white-space: nowrap;
+}
+
 /* —— Waiting —— */
 .waiting {
   flex: 1;
