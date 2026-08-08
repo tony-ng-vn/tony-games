@@ -17,13 +17,17 @@ Open http://127.0.0.1:5173 in two browser windows (or two devices on the same ne
 
 ## Deploy to Vercel
 
-### Option A — Vercel dashboard
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/import?s=https://github.com/tony-ng-vn/tony-games)
 
-1. Import `tony-ng-vn/tony-games` in [Vercel](https://vercel.com/new)
-2. Framework preset: Vite (auto from `vercel.json`)
-3. Deploy
+`vercel.json` already configures install/build/output for the Vite client.
 
-### Option B — CLI
+### Dashboard (fastest)
+
+1. Open [vercel.com/new](https://vercel.com/new) and import `tony-ng-vn/tony-games`
+2. Use branch `main` (or this PR branch)
+3. Deploy — no env vars needed
+
+### CLI (from this repo)
 
 ```bash
 npm i -g vercel
@@ -31,7 +35,11 @@ vercel login
 vercel --prod
 ```
 
-`vercel.json` already sets install/build/output for the `client` app.
+Or with a token from [Vercel → Settings → Tokens](https://vercel.com/account/tokens):
+
+```bash
+vercel --prod --token "$VERCEL_TOKEN" --yes
+```
 
 ## How it works
 
