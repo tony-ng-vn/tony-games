@@ -7,10 +7,4 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
-  // Emit to repo-root dist so Vercel’s default outputDirectory works
-  // even when the project Root Directory is left as ".".
-  build: {
-    outDir: '../dist',
-    emptyOutDir: true,
-  },
 });
